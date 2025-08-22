@@ -11,7 +11,9 @@ imageFile = "file.ico"
 #UI control variable
 inAction = False
 
+#defaults
 defaultJsonVal = '[{"URLs": {}},{"Files": {}},{"Other": {}}]'
+
 
 def loadImage():
     return Image.open(imageFile)
@@ -33,6 +35,7 @@ jsonData = loadJson()
 URLs = jsonData[0]["URLs"]
 Files = jsonData[1]["Files"]
 Other = jsonData[2]["Other"]
+Default = jsonData[3]["Default"]
 
 def openURL(icon,item):
     if item and item.text in URLs:
@@ -55,7 +58,13 @@ def openOther(icon,item):
 def onExit(icon):
     icon.stop()
     
+def changeDefault():
+    def wrapper():
     
+        jsonData[3]["Default"] = filedialog.askdirectory()
+        
+        saveJson(jsonData)
+    threading.Thread(target=wrapper).start()
 
 def showAddUI(icon):
     def runUI():
@@ -97,7 +106,7 @@ def showAddUI(icon):
             elif dropdown.get() == "Other":
                 Other.update({nameEntry.get(): directoryEntry.get()})
                 
-            newJson = [{"URLs": URLs}, {"Files": Files}, {"Other": Other}]
+            newJson = [{"URLs": URLs}, {"Files": Files}, {"Other": Other},{"Default": Default}]
             saveJson(newJson)
             icon.menu = updateMenu(icon)
 
@@ -185,7 +194,7 @@ def showRemoveUI(icon):
                     messagebox.showerror("Types don's match","Selected Item type and Dropdown item type is not same")
                    
                 
-                newJson = [{"URLs": URLs}, {"Files": Files}, {"Other": Other}]
+                newJson = [{"URLs": URLs}, {"Files": Files}, {"Other": Other},{"Default": Default}]
                 saveJson(newJson)
                 showList()
                 icon.menu = updateMenu(icon)
@@ -227,6 +236,23 @@ def updateMenu(icon):
     fileMenu = Menu(*(MenuItem(name,openFiles) for name in Files))
     otherMenu = Menu(*(MenuItem(name,openOther) for name in Other))
     
+    if jsonData[3]["Default"] != "":
+        return Menu(
+            MenuItem("",lambda: os.startfile(jsonData[3]["Default"]), visible=False,default=True),
+            Menu.SEPARATOR,
+            MenuItem("Open URLs",urlMenu),
+            Menu.SEPARATOR,
+            MenuItem("Open File",fileMenu),
+            Menu.SEPARATOR,
+            MenuItem("Other",otherMenu),
+            Menu.SEPARATOR,
+            MenuItem("Add More Options", showAddUI),
+            MenuItem("Remove Options",showRemoveUI),
+            Menu.SEPARATOR,
+            MenuItem("Change Default",changeDefault),
+            Menu.SEPARATOR,
+            MenuItem("Exit", onExit)
+        )
     return Menu(
         Menu.SEPARATOR,
         MenuItem("Open URLs",urlMenu),
@@ -237,6 +263,8 @@ def updateMenu(icon):
         Menu.SEPARATOR,
         MenuItem("Add More Options", showAddUI),
         MenuItem("Remove Options",showRemoveUI),
+        Menu.SEPARATOR,
+        MenuItem("Change Default",changeDefault),
         Menu.SEPARATOR,
         MenuItem("Exit", onExit)
     )
