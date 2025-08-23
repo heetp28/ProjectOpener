@@ -1,10 +1,12 @@
 [
     {
-        "URLs": {},
+        "URLs": {
+            "Google": "https://www.google.com/"
+        },
         "Files": {},
         "Other": {}
     },
     {
-        "Default": "D:/Heet/games"
+        "Default": ""
     }
 ]

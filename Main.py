@@ -39,12 +39,21 @@ Other = mainDirectories["Other"]
 Default = jsonData[1]["Default"]
 
 def openURL(icon,item):
-    if item and item.text in URLs:
-        webbrowser.open(URLs[item.text])
-
+    try: 
+        if item and item.text in URLs:
+            webbrowser.open(URLs[item.text])
+    except:
+        messagebox.showerror("Error","URL might be invalid"+"\n"+URLs[item.text])
+        
 def openFiles(icon,item):
-    if item and item.text in Files:
-        os.startfile(Files[item.text])
+    try:
+        if item and item.text in Files and os.path.exists(Files[item.text]):
+            os.startfile(Files[item.text])
+        else:
+            if not os.path.exists(Files[item.text]):
+                messagebox.showerror("Directory doesn't exist.","The directory might have been moved or deleted")
+    except:
+        messagebox.showerror("Error","File path might be invalid \n"+Files[item.text] + "Or it might not exist")
         
 def openOther(icon,item):
     if item and item.text in Other:
@@ -54,18 +63,19 @@ def openOther(icon,item):
             try:
                 webbrowser.open(Other[item.text])
             except:
-                pass
+                messagebox.showerror("Error","The Domain/Directory doesn't exists\n" + Other[item.text])
 
 def onExit(icon):
     icon.stop()
-    
+
 def changeDefault(icon):
     def wrapper():
     
         jsonData[1]["Default"] = filedialog.askdirectory()
         saveJson(jsonData)
+        messagebox.showinfo("Rerun required", "Default has been changed please rerun the app to update it in the tray")
+
     threading.Thread(target=wrapper).start()
-    
 
 def showAddUI(icon):
     def runUI():
@@ -99,6 +109,11 @@ def showAddUI(icon):
         def submit():
             if nameEntry.get() == "" or directoryEntry == "":
                 messagebox.showerror("Empty field", " A Field is left Empty")
+                return
+            
+            if directoryEntry.get() in URLs.values() or directoryEntry.get() in Files.values() or directoryEntry.get() in Other.values():
+                messagebox.showerror("Directory Exists", "This Directory already exists")
+                return
             
             if dropdown.get() == "URLs":
                 URLs.update({nameEntry.get(): directoryEntry.get()})
@@ -251,7 +266,7 @@ def updateMenu(icon):
             MenuItem("Add More Options", showAddUI),
             MenuItem("Remove Options",showRemoveUI),
             Menu.SEPARATOR,
-            MenuItem("Change Default",changeDefault(icon)),
+            MenuItem("Change Default",lambda: changeDefault(icon)),
             Menu.SEPARATOR,
             MenuItem("Exit", onExit)
         )
@@ -266,7 +281,7 @@ def updateMenu(icon):
         MenuItem("Add More Options", showAddUI),
         MenuItem("Remove Options",showRemoveUI),
         Menu.SEPARATOR,
-        MenuItem("Change Default",changeDefault(icon)),
+        MenuItem("Change Default",lambda: changeDefault(icon)),
         Menu.SEPARATOR,
         MenuItem("Exit", onExit)
     )
