@@ -12,7 +12,7 @@ imageFile = "file.ico"
 inAction = False
 
 #defaults
-defaultJsonVal = '[{"URLs": {}},{"Files": {}},{"Other": {}}]'
+defaultJsonVal = '[{"URLs": {},"Files": {},"Other": {}},{"Default": ""}]'
 
 
 def loadImage():
@@ -24,18 +24,19 @@ def loadJson():
             return json.load(file)
     with open(jsonFile,"x") as file:
         file.write(defaultJsonVal)
-        return json.load(file)
-    
+        return [{"URLs": {},"Files": {},"Other": {}},{"Default": ""}]
+        
 def saveJson(data):
     with open(jsonFile,"w") as file:
         json.dump(data, file,indent=4)
         
 #Variable for doing json stuff
 jsonData = loadJson()
-URLs = jsonData[0]["URLs"]
-Files = jsonData[1]["Files"]
-Other = jsonData[2]["Other"]
-Default = jsonData[3]["Default"]
+mainDirectories = jsonData[0]
+URLs = mainDirectories["URLs"]
+Files = mainDirectories["Files"]
+Other = mainDirectories["Other"]
+Default = jsonData[1]["Default"]
 
 def openURL(icon,item):
     if item and item.text in URLs:
@@ -58,13 +59,13 @@ def openOther(icon,item):
 def onExit(icon):
     icon.stop()
     
-def changeDefault():
+def changeDefault(icon):
     def wrapper():
     
-        jsonData[3]["Default"] = filedialog.askdirectory()
-        
+        jsonData[1]["Default"] = filedialog.askdirectory()
         saveJson(jsonData)
     threading.Thread(target=wrapper).start()
+    
 
 def showAddUI(icon):
     def runUI():
@@ -106,7 +107,7 @@ def showAddUI(icon):
             elif dropdown.get() == "Other":
                 Other.update({nameEntry.get(): directoryEntry.get()})
                 
-            newJson = [{"URLs": URLs}, {"Files": Files}, {"Other": Other},{"Default": Default}]
+            newJson = [{"URLs": URLs,"Files": Files,"Other": Other},{"Default": Default}]
             saveJson(newJson)
             icon.menu = updateMenu(icon)
 
@@ -194,7 +195,7 @@ def showRemoveUI(icon):
                     messagebox.showerror("Types don's match","Selected Item type and Dropdown item type is not same")
                    
                 
-                newJson = [{"URLs": URLs}, {"Files": Files}, {"Other": Other},{"Default": Default}]
+                newJson = [{"URLs": URLs,"Files": Files,"Other": Other},{"Default": Default}]
                 saveJson(newJson)
                 showList()
                 icon.menu = updateMenu(icon)
@@ -228,17 +229,18 @@ def showRemoveUI(icon):
 
 def updateMenu(icon):
     jsonData = loadJson()
-    URLs = jsonData[0]["URLs"]
-    Files = jsonData[1]["Files"]
-    Other = jsonData[2]["Other"]
+    mainDirectories = jsonData[0]
+    URLs = mainDirectories["URLs"]
+    Files = mainDirectories["Files"]
+    Other = mainDirectories["Other"]
     
     urlMenu = Menu(*(MenuItem(name,openURL) for name in URLs),)
     fileMenu = Menu(*(MenuItem(name,openFiles) for name in Files))
     otherMenu = Menu(*(MenuItem(name,openOther) for name in Other))
     
-    if jsonData[3]["Default"] != "":
+    if jsonData[1]["Default"] != "":
         return Menu(
-            MenuItem("",lambda: os.startfile(jsonData[3]["Default"]), visible=False,default=True),
+            MenuItem("",lambda: os.startfile(jsonData[1]["Default"]), visible=False,default=True),
             Menu.SEPARATOR,
             MenuItem("Open URLs",urlMenu),
             Menu.SEPARATOR,
@@ -249,7 +251,7 @@ def updateMenu(icon):
             MenuItem("Add More Options", showAddUI),
             MenuItem("Remove Options",showRemoveUI),
             Menu.SEPARATOR,
-            MenuItem("Change Default",changeDefault),
+            MenuItem("Change Default",changeDefault(icon)),
             Menu.SEPARATOR,
             MenuItem("Exit", onExit)
         )
@@ -264,7 +266,7 @@ def updateMenu(icon):
         MenuItem("Add More Options", showAddUI),
         MenuItem("Remove Options",showRemoveUI),
         Menu.SEPARATOR,
-        MenuItem("Change Default",changeDefault),
+        MenuItem("Change Default",changeDefault(icon)),
         Menu.SEPARATOR,
         MenuItem("Exit", onExit)
     )

@@ -1,18 +1,10 @@
 [
     {
-        "URLs": {
-            "Google": "https://www.google.com/"
-        }
-    },
-    {
-        "Files": {
-            "C": "D:/Heet/CodingProjects/C"
-        }
-    },
-    {
+        "URLs": {},
+        "Files": {},
         "Other": {}
     },
     {
-        "Default": "D:/Heet"
+        "Default": "D:/Heet/games"
     }
 ]

@@ -1,5 +1,5 @@
 Packages/
 build/
 dist/
-
+test/
 Main.spec
