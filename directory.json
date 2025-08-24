@@ -3,12 +3,10 @@
         "URLs": {
             "Google": "https://www.google.com/"
         },
-        "Files": {
-
-        },
+        "Files": {},
         "Other": {}
     },
     {
-        "Default": ""
+        "Default": "D:/Heet"
     }
 ]
