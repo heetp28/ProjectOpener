@@ -5,7 +5,7 @@ This programs run in the backgroud to access it you need to look at system tray 
 ## How to install
 1. Clone the repository to your desired location.<br>
 2. Create a virtual environment. (py -m venv "environment_name")<br>
-3. Open Virtual environment and download the required libraries (in requirements [use pip intall requirements])
+3. Open Virtual environment and download the required libraries (in requirements [use pip install -r requirements])
 4. In your preferred terminal type <br> pyinstaller --onefile --noconsole --icon=file.ico Main.py <br>
 5. If successful there will be a dist folder with the exe and you can delete the build folder <br>
 6. Move file.ico and directory.json to the dist folder. <br>
