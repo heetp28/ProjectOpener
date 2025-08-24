@@ -98,6 +98,8 @@ def showAddUI(icon):
         
         root = tk.Tk()
         root.geometry("300x150")
+        root.title("Add Option")
+        root.iconbitmap("file.ico")
         inAction = True
 
         nameLabel = tk.Label(root, text="Enter Name: ")
@@ -178,7 +180,9 @@ def showRemoveUI(icon):
 
         root = tk.Tk()
         root.geometry("175x250")
+        root.title("Remove Option")
         inAction = True
+        root.iconbitmap("file.ico")
         
         def showList(event = None):
             currentType = getCurrentType()
