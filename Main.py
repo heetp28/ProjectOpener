@@ -177,13 +177,21 @@ def showRemoveUI(icon):
             inAction = False
 
         root = tk.Tk()
-        root.geometry("300x250")
+        root.geometry("175x250")
         inAction = True
+        
+        def showList(event = None):
+            currentType = getCurrentType()
+            
+            insertList(currentType,myListBox)
                 
         dropdownList = ["URLs", "Files", "Other"]
         dropdown = ttk.Combobox(root,values= dropdownList,state= "readonly")
         dropdown.grid(row=0,column=0)
         dropdown.current(0)
+        
+        dropdown.bind("<<ComboboxSelected>>" , showList)
+        
         def clearList(listBox):
             listBox.delete(0,tk.END)
             
@@ -202,10 +210,7 @@ def showRemoveUI(icon):
         def getCurrentType():
             return dropdown.get()
         
-        def showList():
-            currentType = getCurrentType()
-            
-            insertList(currentType,myListBox)
+        
         
         def removeItem():
             try:
@@ -239,15 +244,16 @@ def showRemoveUI(icon):
         myListBox.grid(row=1,column=0)
         
         showList()
+        labelFrame = tk.LabelFrame(root)
+        labelFrame.grid(row=2,column=0)
+        # updateBtn = tk.Button(root,text="Update List",command=showList)
+        # updateBtn.grid(row=0,column=1)
         
-        updateBtn = tk.Button(root,text="Update List",command=showList)
-        updateBtn.grid(row=0,column=1)
+        doneBtn = tk.Button(labelFrame,text="Done",command=onClose)
+        doneBtn.grid(row=0,column=0,padx=3,pady=1)
         
-        doneBtn = tk.Button(root,text="Done",command=onClose)
-        doneBtn.grid(row=2,column=1)
-        
-        deleteBtn = tk.Button(root,text="Delete",command=removeItem)
-        deleteBtn.grid(row=2,column=2)
+        deleteBtn = tk.Button(labelFrame,text="Delete",command=removeItem)
+        deleteBtn.grid(row=0,column=1,padx=3,pady=1)
         
         root.protocol("WM_DELETE_WINDOW",onClose)
         
