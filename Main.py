@@ -41,7 +41,7 @@ Default = jsonData[1]["Default"]
 def openURL(icon,item):
     def wrapper():
         try:
-            if (item and item.text in URLs) and requests.head(Other[item.text]).status_code == 200:
+            if (item and item.text in URLs) and requests.head(URLs[item.text],allow_redirects= True).status_code == 200:
                 webbrowser.open(URLs[item.text])
         except:
             messagebox.showerror("Error","URL might be invalid\n"+URLs[item.text])
@@ -66,7 +66,7 @@ def openOther(icon,item):
                 os.startfile(Other[item.text])
             except:
                 try:
-                    if requests.head(Other[item.text]).status_code != 200:
+                    if requests.head(Other[item.text],allow_redirects=True).status_code != 200:
                         messagebox.showerror("Domain doesn't exists","URL might be invalid")
                     else:
                         webbrowser.open(Other[item.text])
