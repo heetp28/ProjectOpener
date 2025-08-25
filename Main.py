@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter import ttk,filedialog,messagebox
 
 #File Variables
-jsonFile = r"test\test.json"
+jsonFile = "directory.json"
 imageFile = "file.ico"
 
 #UI control variable
