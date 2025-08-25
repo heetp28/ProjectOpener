@@ -1,11 +1,11 @@
 from pystray import Icon, Menu, MenuItem
 from PIL import Image
-import webbrowser,os,json,threading,requests
+import webbrowser,os,json,threading
 import tkinter as tk
 from tkinter import ttk,filedialog,messagebox
 
 #File Variables
-jsonFile = "directory.json"
+jsonFile = r"test\test.json"
 imageFile = "file.ico"
 
 #UI control variable
@@ -13,7 +13,6 @@ inAction = False
 
 #defaults
 defaultJsonVal = '[{"URLs": {},"Files": {},"Other": {}},{"Default": ""}]'
-
 
 def loadImage():
     return Image.open(imageFile)
@@ -41,10 +40,11 @@ Default = jsonData[1]["Default"]
 def openURL(icon,item):
     def wrapper():
         try:
-            if (item and item.text in URLs) and requests.head(URLs[item.text],allow_redirects= True).status_code == 200:
+            if (item and item.text in URLs):
                 webbrowser.open(URLs[item.text])
         except:
             messagebox.showerror("Error","URL might be invalid\n"+URLs[item.text])
+
     threading.Thread(target=wrapper).start()
             
 def openFiles(icon,item):
@@ -66,12 +66,9 @@ def openOther(icon,item):
                 os.startfile(Other[item.text])
             except:
                 try:
-                    if requests.head(Other[item.text],allow_redirects=True).status_code != 200:
-                        messagebox.showerror("Domain doesn't exists","URL might be invalid")
-                    else:
-                        webbrowser.open(Other[item.text])
+                    webbrowser.open(Other[item.text])
                 except:
-                    messagebox.showerror("Error","The Directory doesn't exists\n" + Other[item.text])
+                    messagebox.showerror("Error","The Directory/Domain doesn't exists\n" + Other[item.text])
     threading.Thread(target=wrapper).start()
     
     
