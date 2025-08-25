@@ -1,3 +1,5 @@
+#heetp28 v_0.1.2
+
 from pystray import Icon, Menu, MenuItem
 from PIL import Image
 import webbrowser,os,json,threading,requests
@@ -12,7 +14,7 @@ imageFile = "file.ico"
 inAction = False
 
 #defaults
-defaultJsonVal = '[{"URLs": {},"Files": {},"Other": {}},{"Default": ""}]'
+defaultJsonVal = '[{"URLs": {},"Files": {},"Apps":{},"Other": {}},{"Default": ""}]'
 
 
 def loadImage():
@@ -36,6 +38,7 @@ mainDirectories = jsonData[0]
 URLs = mainDirectories["URLs"]
 Files = mainDirectories["Files"]
 Other = mainDirectories["Other"]
+Apps = mainDirectories["Apps"]
 Default = jsonData[1]["Default"]
 
 def openURL(icon,item):
@@ -59,6 +62,16 @@ def openFiles(icon,item):
             messagebox.showerror("Error","File path might be invalid \n"+Files[item.text] + "Or it might not exist")
     threading.Thread(target=wrapper).start()
         
+def runApp(icon,item):
+    def wrapper():
+        try:
+            if item and item.text in Apps and os.path.exists(Apps[item.text]):
+                os.startfile(Apps[item.text])
+        except:
+            messagebox.showerror("Directory doesn't exist.","The directory might have been moved or deleted")
+            
+    threading.Thread(target=wrapper).start()
+            
 def openOther(icon,item):
     def wrapper():
         if item and item.text in Other:
@@ -113,11 +126,19 @@ def showAddUI(icon):
         directoryEntry.grid(row=1, column=1)
 
         def browseFolder():
-            selectedFile = filedialog.askdirectory(title="Select Folder")
-            if selectedFile:
+            selectedFolder = filedialog.askdirectory(title="Select Folder")
+            
+            if selectedFolder:
                 directoryEntry.delete(0, tk.END)
-                directoryEntry.insert(0, selectedFile)
+                directoryEntry.insert(0, selectedFolder)
 
+        def browseFile():
+            selectedFile = filedialog.askopenfilename(title="Select File")
+            
+            if selectedFile:
+                directoryEntry.delete(0,tk.END)
+                directoryEntry.insert(0, selectedFile)
+        
         def submit():
             if nameEntry.get() == "" or directoryEntry.get() == "":
                 messagebox.showerror("Empty field", " A Field is left Empty")
@@ -131,10 +152,12 @@ def showAddUI(icon):
                 URLs.update({nameEntry.get(): directoryEntry.get()})
             elif dropdown.get() == "Files":
                 Files.update({nameEntry.get(): directoryEntry.get()})
+            elif dropdown.get() == "Apps":
+                Apps.update({nameEntry.get(): directoryEntry.get()})
             elif dropdown.get() == "Other":
                 Other.update({nameEntry.get(): directoryEntry.get()})
                 
-            newJson = [{"URLs": URLs,"Files": Files,"Other": Other},{"Default": Default}]
+            newJson = [{"URLs": URLs,"Files": Files,"Apps": Apps,"Other": Other},{"Default": Default}]
             saveJson(newJson)
             icon.menu = updateMenu(icon)
 
@@ -143,10 +166,13 @@ def showAddUI(icon):
         def updateBtn(event = None):
             if dropdown.get() == "URLs":
                 browseBtn["state"] = "disabled"
+            elif dropdown.get() == "Apps":
+                browseBtn["state"] = "normal"
+                browseBtn.config(command=browseFile)
             else:
                 browseBtn["state"] = "normal"
                 
-        dropdownList = ["URLs", "Files", "Other"]
+        dropdownList = list(mainDirectories.keys())
         dropdown = ttk.Combobox(root, values=dropdownList, state="readonly")
         dropdown.grid(row=2, column=1)
         dropdown.current(0)
@@ -189,7 +215,7 @@ def showRemoveUI(icon):
             
             insertList(currentType,myListBox)
                 
-        dropdownList = ["URLs", "Files", "Other"]
+        dropdownList = list(mainDirectories.keys())
         dropdown = ttk.Combobox(root,values= dropdownList,state= "readonly")
         dropdown.grid(row=0,column=0)
         dropdown.current(0)
@@ -207,6 +233,9 @@ def showRemoveUI(icon):
             elif insertionType == "Files":
                 for item in Files:
                     listBox.insert(tk.END,item)
+            elif insertionType == "Apps":
+                for item in Apps:
+                    listBox.insert(tk.END,item)
             elif insertionType == "Other":
                 for item in Other:
                     listBox.insert(tk.END,item)
@@ -219,22 +248,20 @@ def showRemoveUI(icon):
         def removeItem():
             try:
                 selectedItem = myListBox.selection_get()
-                try:
-                    if getCurrentType() == "URLs":
-                        URLs.pop(selectedItem)
-                        # print(f"{selectedItem} = {type(selectedItem)}")
-                        
-                    elif getCurrentType() == "Files":
-                        Files.pop(selectedItem)
-                        
-                    elif getCurrentType() == "Other":
-                        Other.pop(selectedItem)
-                        
-                except:
-                    messagebox.showerror("Types don's match","Selected Item type and Dropdown item type is not same")
-                   
+                if getCurrentType() == "URLs":
+                    URLs.pop(selectedItem)
+                    # print(f"{selectedItem} = {type(selectedItem)}")
+                    
+                elif getCurrentType() == "Files":
+                    Files.pop(selectedItem)
+                    
+                elif getCurrentType() == "Apps":
+                    Apps.pop(selectedItem)
+                    
+                elif getCurrentType() == "Other":
+                    Other.pop(selectedItem)  
                 
-                newJson = [{"URLs": URLs,"Files": Files,"Other": Other},{"Default": Default}]
+                newJson = [{"URLs": URLs,"Files": Files,"Other": Other,"Apps":Apps},{"Default": Default}]
                 saveJson(newJson)
                 showList()
                 icon.menu = updateMenu(icon)
@@ -273,10 +300,12 @@ def updateMenu(icon):
     URLs = mainDirectories["URLs"]
     Files = mainDirectories["Files"]
     Other = mainDirectories["Other"]
+    Apps = mainDirectories["Apps"]
     
     urlMenu = Menu(*(MenuItem(name,openURL) for name in URLs),)
     fileMenu = Menu(*(MenuItem(name,openFiles) for name in Files))
     otherMenu = Menu(*(MenuItem(name,openOther) for name in Other))
+    appsMenu = Menu(*(MenuItem(name,runApp) for name in Apps))
     
     if jsonData[1]["Default"] != "":
         return Menu(
@@ -285,6 +314,7 @@ def updateMenu(icon):
             MenuItem("Open URLs",urlMenu),
             Menu.SEPARATOR,
             MenuItem("Open File",fileMenu),
+            MenuItem("Run App", appsMenu),
             Menu.SEPARATOR,
             MenuItem("Other",otherMenu),
             Menu.SEPARATOR,
@@ -302,6 +332,7 @@ def updateMenu(icon):
         MenuItem("Open File",fileMenu),
         Menu.SEPARATOR,
         MenuItem("Other",otherMenu),
+        MenuItem("Run App", appsMenu),
         Menu.SEPARATOR,
         MenuItem("Add More Options", showAddUI),
         MenuItem("Remove Options",showRemoveUI),
@@ -313,7 +344,6 @@ def updateMenu(icon):
     
 
 def main():
-    loadJson()
     icon = Icon("Utility",loadImage(),"Utilities")
     icon.menu = updateMenu(icon)
     icon.run()
