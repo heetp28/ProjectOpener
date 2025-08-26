@@ -87,6 +87,17 @@ def openOther(icon,item):
                     messagebox.showerror("Error","The Directory doesn't exists\n" + Other[item.text])
     threading.Thread(target=wrapper).start()
     
+def newFile(icon,item):
+    def wrapper():
+        fileTypes = [("Text file", "*.txt"),("Python", "*.py"),("Java","*.java"),("C","*.c"),("HTML","*.html"),("CSS","*.css"),("All files","*.*")]
+        newFile = filedialog.asksaveasfile(defaultextension="*.txt",filetypes=fileTypes)
+        if newFile != None:
+            openOrNot = messagebox.askyesno("File saved","New File is created at\n"+ os.path.dirname(newFile.name) + "\nOpen the location of the file?")
+            
+            if openOrNot:
+                os.startfile(os.path.dirname(newFile.name))
+    threading.Thread(target=wrapper).start()
+            
     
 def onExit(icon):
     icon.stop()
@@ -322,6 +333,7 @@ def updateMenu(icon):
             MenuItem("Remove Options",showRemoveUI),
             Menu.SEPARATOR,
             MenuItem("Change Default",lambda: changeDefault(icon)),
+            MenuItem("New File",newFile),
             Menu.SEPARATOR,
             MenuItem("Exit", onExit)
         )
@@ -338,6 +350,7 @@ def updateMenu(icon):
         MenuItem("Remove Options",showRemoveUI),
         Menu.SEPARATOR,
         MenuItem("Change Default",lambda: changeDefault(icon)),
+        MenuItem("New File", newFile),
         Menu.SEPARATOR,
         MenuItem("Exit", onExit)
     )
