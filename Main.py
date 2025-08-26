@@ -1,3 +1,5 @@
+#heetp28 🎩 v_0.1.1
+
 from pystray import Icon, Menu, MenuItem
 from PIL import Image
 import webbrowser,os,json,threading
@@ -317,3 +319,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+#heetp28 🎩 v_0.1.1

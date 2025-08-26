@@ -4,8 +4,6 @@ python -m venv Packages
 
 call .\Packages\Scripts\activate.bat
 
-python -m pip install --upgrade pip
-
 pip install -r requirements
 
 pyinstaller --onefile --noconsole --icon=file.ico Main.py
@@ -23,7 +21,7 @@ goto AskStartUp
 :AddStartUp
 set STARTUP_FOLDER=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup
 set SHORTCUT_NAME=ProjectOpener.lnk
-powershell "$s=(New-Object -COM WScript.Shell).CreateShortcut('%STARTUP_FOLDER%%SHORTCUT_NAME%');$s.TargetPath='%CD%\dist\Main.exe';$s.Save()"
+powershell "$s=(New-Object -COM WScript.Shell).CreateShortcut('%STARTUP_FOLDER%/%SHORTCUT_NAME%');$s.TargetPath='%CD%\dist\Main.exe';$s.Save()"
 
 :SkipStartUp
 echo done (you can't even read this message)
