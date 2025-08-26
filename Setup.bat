@@ -14,9 +14,9 @@ copy "file.ico" ".\dist\"
 copy "directory.json" ".\dist\"
 
 :AskStartUp
-set /p choice = "Add as Start App (y/n): "
-if /i "%choice%" == "y" goto AddStartUp
-if /i "%choice%" == "n" goto SkipStartUp
+set /p choice="Add as Start App (y/n): "
+if /i "%choice%"=="y" goto AddStartUp
+if /i "%choice%"=="n" goto SkipStartUp
 echo Enter a Valid Option y/n.
 goto AskStartUp
 
