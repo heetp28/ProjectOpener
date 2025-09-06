@@ -20,6 +20,7 @@ if /i "%choice%"=="n" goto SkipStartUp
 echo Enter a Valid Option y/n.
 goto AskStartUp
 
+:AskStartUp
 set STARTUP_FOLDER=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup
 set SHORTCUT_NAME=ProjectOpener.lnk
 powershell "$s=(New-Object -COM WScript.Shell).CreateShortcut('%STARTUP_FOLDER%/%SHORTCUT_NAME%');$s.TargetPath='%CD%\dist\Main.exe';$s.Save()"
