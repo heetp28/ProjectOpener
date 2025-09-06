@@ -25,4 +25,4 @@ set SHORTCUT_NAME=ProjectOpener.lnk
 powershell "$s=(New-Object -COM WScript.Shell).CreateShortcut('%STARTUP_FOLDER%/%SHORTCUT_NAME%');$s.TargetPath='%CD%\dist\Main.exe';$s.Save()"
 
 :SkipStartUp
-echo done (you can't even read this message)
+echo done (you can't even read this message [if you run setup.bat])
