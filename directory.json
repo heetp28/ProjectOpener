@@ -4,10 +4,7 @@
             "Google": "https://www.google.com/"
         },
         "Files": {},
-        "Apps": {
-            "test": "D:/Heet/Test/test.py",
-            "anydesk": "D:/Heet/AnyDesk.exe"
-        },
+        "Apps": {},
         "Other": {}
     },
     {

@@ -4,7 +4,7 @@ from pystray import Icon, Menu, MenuItem
 from PIL import Image
 import webbrowser,os,json,threading,requests
 import tkinter as tk
-from tkinter import ttk,filedialog,messagebox
+from tkinter import ttk,filedialog,messagebox,Canvas
 
 #File Variables
 jsonFile = "directory.json"
@@ -303,7 +303,118 @@ def showRemoveUI(icon):
     if not inAction:
         threading.Thread(target=runUI).start()
     else:
-        messagebox.showerror("Something in Action", "A UI is already running pls close it to open a new one")
+        messagebox.showerror("Something in Action", "A UI is already running. Close it to open a new one")
+        
+def paint():
+    global inAction
+    def wrapper():
+        pause = True
+        
+        def onCancle(event =None):
+            nonlocal pause
+            pause = False
+            root.destroy()
+            
+        color = "#ff0000"
+        brushSize = 3
+        
+        def onPaint(event):
+            offset = brushSize
+            x1,y1,x2,y2 = (event.x - offset),(event.y - offset),(event.x +offset),(event.y + offset)
+            
+            # print(event.x,event.y)
+            canvas.create_oval(x1,y1,x2,y2,fill=color,outline=color)
+            
+        def onErase(event):
+            offset = 2*brushSize
+            x1,y1,x2,y2 = (event.x - offset),(event.y - offset),(event.x +offset),(event.y + offset)
+            
+            canvas.create_oval(x1,y1,x2,y2,fill="#000000",outline="#000000")
+        
+        def changeColor(event):
+            nonlocal color,colors
+            
+            color = colors[colorBox.get()]
+        
+        def updateColorbox(event):
+            nonlocal color
+            if comboBox.get() == "Paint":
+                nonlocal colors
+                colorBox.configure(state="readonly")
+                color = colors[colorBox.get()]
+            elif comboBox.get() == "Erase":
+                colorBox.configure(state="disable")
+                color = "#000000"
+                
+        def changeSize(event):
+            nonlocal brushSize
+            
+            brushSize = int(sizeBox.get())
+        
+        def clearAll():
+            canvas.delete("all")
+        
+        root = tk.Tk()
+        screenWidth = root.winfo_screenwidth()
+        screenHeight = root.winfo_screenheight()
+
+        canvas = Canvas(root,width=2*screenWidth,height=2*screenHeight,background="black")
+        canvas.bind("<B1-Motion>",onPaint)
+        canvas.bind("<B3-Motion>",onErase)
+        
+        boxFrame = tk.Frame(root,background="black")
+        boxFrame.place(x=0.925*screenWidth,y=0.45*screenHeight)
+        
+        # hScrollBar = tk.Scrollbar(root,orient="horizontal",command=canvas.xview,background="black")
+        # hScrollBar.pack(side="bottom",fill="x")
+        # vScrollBar = tk.Scrollbar(root,orient="vertical",command=canvas.yview,background="black")
+        # vScrollBar.pack(side="right",fill="y")
+        
+        # canvas.config(xscrollcommand=hScrollBar.set,yscrollcommand=vScrollBar.set)
+        
+        options = ("Paint","Erase")
+        comboBox = ttk.Combobox(boxFrame,values=options,state="readonly")
+        comboBox.set(options[0])
+        comboBox.bind("<<ComboboxSelected>>",updateColorbox)
+        comboBox.pack()
+        
+        colors = {"Red": "#ff0000",
+                  "Yellow": "#ffff00",
+                  "Green": "#00ff00",
+                  "Blue": "#0000ff",
+                  "Light Blue": "#00ffff",
+                  "Magenta": "#ff00ff",
+                  "White": "#ffffff"}
+        
+        colorBox = ttk.Combobox(boxFrame,values=list(colors.keys()),state="readonly")
+        colorBox.set("Red")
+        colorBox.bind("<<ComboboxSelected>>",changeColor)
+        colorBox.pack()
+        
+        brushSizes = (1,2,3,5,8,10,12,14,16,18,20,22,24,32)
+        sizeBox = ttk.Combobox(boxFrame,values=brushSizes,state="readonly")
+        sizeBox.set(brushSizes[2])
+        sizeBox.bind("<<ComboboxSelected>>",changeSize)
+        sizeBox.pack()
+        
+        clearBtn = tk.Button(boxFrame,text="Clear All", command=clearAll)
+        clearBtn.pack(side="left")
+        
+        exitBtn = tk.Button(boxFrame,text="Exit",command=onCancle)
+        exitBtn.pack(side="left")
+        
+        root.attributes("-fullscreen",True)
+        root.attributes("-alpha",1)
+        root.configure(bg="black")
+        root.bind("<Escape>",onCancle)
+        
+        canvas.pack(fill="both",expand=True)
+        
+        root.mainloop()
+    if not inAction:
+        threading.Thread(target=wrapper).start()
+    else:
+        messagebox.showerror("Something in Action", "A UI is already running. Close it to open a new one")
 
 def updateMenu(icon):
     jsonData = loadJson()
@@ -335,6 +446,8 @@ def updateMenu(icon):
             MenuItem("Change Default",lambda: changeDefault(icon)),
             MenuItem("New File",newFile),
             Menu.SEPARATOR,
+            MenuItem("Paint", paint),
+            Menu.SEPARATOR,
             MenuItem("Exit", onExit)
         )
     return Menu(
@@ -352,6 +465,8 @@ def updateMenu(icon):
         MenuItem("Change Default",lambda: changeDefault(icon)),
         MenuItem("New File", newFile),
         Menu.SEPARATOR,
+        MenuItem("Paint",paint),
+        Menu.SEPARATOR,
         MenuItem("Exit", onExit)
     )
     
@@ -363,3 +478,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+#heetp28 🎩 v_0.1.2
